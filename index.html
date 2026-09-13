@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Миглена Иванова — Живея, мечтая, обичам</title>
+<meta name="description" content="Луксозно кинематографично портфолио — Миглена Иванова. Стил, море и вдъхновение.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Миглена Иванова — Живея, мечтая, обичам">
+<meta property="og:description" content="Морето, стилът и радостта от живота — през погледа на Миглена Иванова.">
+<meta property="og:image" content="miglena-01.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="miglena-01.jpg">
+<meta name="theme-color" content="#0B1C24">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%232A5A66'/%3E%3Ctext x='16' y='22' font-size='16' text-anchor='middle' fill='%23F3ECE0' font-family='Georgia,serif' font-style='italic'%3EM%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3ECE0;--ink:#0B1C24;--soft:#B7C4C5;--sea:#7FC3D6;--champ:#D4B36A;
+  --disp:'Cormorant Garamond',Georgia,serif;--body:'Outfit',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;height:100dvh;overflow:hidden;background:#050c10;color:#F3EEE2;font-family:var(--body);-webkit-text-size-adjust:100%}
+button{font:inherit;cursor:pointer;border:0;background:0;color:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+img{display:block;max-width:100%}
+
+#stage{position:fixed;inset:0;background:#050c10;display:flex;align-items:center;justify-content:center}
+#stage canvas{display:block;max-width:100%;max-height:100%;width:auto;height:auto}
+
+/* UI */
+#ui{position:fixed;inset:0;z-index:10;pointer-events:none}
+#ui *{pointer-events:auto}
+.topbar{
+  position:absolute;top:0;left:0;right:0;
+  padding:max(14px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 14px max(16px,env(safe-area-inset-left));
+  display:flex;justify-content:space-between;align-items:center;
+  background:linear-gradient(180deg,rgba(5,12,16,.8),transparent);
+}
+.brand{font-family:var(--disp);font-style:italic;font-size:1.35rem;letter-spacing:.02em;color:#F7F1E6}
+.ctrls{display:flex;gap:8px;align-items:center}
+.ctrl{
+  min-width:44px;min-height:44px;height:44px;border-radius:999px;
+  border:1px solid rgba(247,241,230,.28);color:#F7F1E6;
+  display:flex;align-items:center;justify-content:center;
+  padding:0 12px;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);background:rgba(5,12,16,.4);
+  transition:transform .25s,border-color .25s,background .25s;
+}
+.ctrl:hover,.ctrl:active{border-color:var(--champ)}
+.ctrl.on{border-color:var(--champ);color:var(--champ);background:rgba(212,179,106,.14)}
+.ctrl.play{width:48px;height:48px;min-width:48px;font-size:1.05rem}
+.ctrl .lbl{display:inline}
+
+.clock{
+  position:absolute;bottom:max(18px,env(safe-area-inset-bottom));left:max(16px,env(safe-area-inset-left));
+  font-size:.68rem;letter-spacing:.16em;color:rgba(247,241,230,.55);
+  font-variant-numeric:tabular-nums;
+}
+.progress{
+  position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,.08);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.progress>i{display:block;height:3px;width:0%;background:linear-gradient(90deg,var(--champ),var(--sea));transition:width .1s linear}
+
+@media(max-width:640px){
+  .brand{font-size:1.2rem}
+  .ctrl{min-width:42px;height:42px;padding:0 10px;font-size:.65rem}
+  .ctrl.play{width:46px;height:46px;min-width:46px}
+  .ctrl .lbl{font-size:0;line-height:0}
+  .ctrl .lbl::before{content:"↗";font-size:1rem;line-height:1;letter-spacing:0}
+  .clock{font-size:.62rem;bottom:max(14px,calc(env(safe-area-inset-bottom) + 6px))}
+  #intro p{font-size:.9rem;padding:0 8px}
+  #intro .hint{font-size:.62rem;line-height:1.5;max-width:280px}
+  .shareCard{padding:20px 18px 28px;padding-bottom:max(28px,env(safe-area-inset-bottom))}
+  .shareRow{gap:8px}
+  .shareBtn{font-size:.55rem;padding:10px 2px}
+}
+
+/* intro overlay */
+#intro{
+  position:fixed;inset:0;z-index:40;background:#050c10;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:28px;transition:opacity 1.2s ease,visibility 1.2s;
+}
+#intro.hide{opacity:0;visibility:hidden;pointer-events:none}
+#intro h1{
+  font-family:var(--disp);font-weight:400;font-size:clamp(2.2rem,6vw,3.8rem);
+  color:var(--champ);margin-bottom:.4em;font-style:italic;
+}
+#intro p{max-width:420px;line-height:1.65;color:rgba(243,238,226,.65);font-size:.95rem;margin-bottom:2em}
+#startBtn{
+  background:var(--champ);color:#1a1205;border:0;padding:16px 36px;
+  font-size:.85rem;letter-spacing:.2em;text-transform:uppercase;border-radius:999px;
+  font-family:var(--body);cursor:pointer;transition:transform .25s,background .25s;
+}
+#startBtn:hover{transform:translateY(-2px);background:#e4c57a}
+#intro .hint{margin-top:18px;font-size:.7rem;letter-spacing:.14em;color:rgba(243,238,226,.4);text-transform:uppercase}
+
+/* share sheet */
+.shareSheet{
+  position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center;
+  background:rgba(6,14,18,.92);opacity:0;visibility:hidden;transition:opacity .35s,visibility .35s;
+}
+.shareSheet.on{opacity:1;visibility:visible}
+.shareCard{
+  background:#102A38;color:#F3EEE2;width:min(400px,94vw);
+  border-radius:22px 22px 0 0;padding:24px 24px 30px;
+  transform:translateY(40px);transition:transform .4s cubic-bezier(.16,1,.3,1);position:relative;
+}
+.shareSheet.on .shareCard{transform:translateY(0)}
+@media(min-width:640px){.shareSheet{align-items:center}.shareCard{border-radius:20px}}
+.shareCard img{width:100%;border-radius:12px;aspect-ratio:4/5;object-fit:cover;margin-bottom:14px}
+.shareCard h3{font-family:var(--disp);font-style:italic;font-weight:400;font-size:1.35rem;margin-bottom:4px}
+.shareCard p{font-size:.85rem;color:var(--soft);margin-bottom:16px}
+.shareRow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.shareBtn{
+  display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 4px;
+  border-radius:14px;border:1px solid rgba(243,238,226,.14);font-size:.6rem;
+  letter-spacing:.08em;text-transform:uppercase;color:#F3EEE2;
+}
+.shareBtn .ic{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;color:#fff;font-size:.85rem}
+.shareBtn.fb .ic{background:#3b5998}
+.shareBtn.vb .ic{background:#7360f2}
+.shareBtn.wa .ic{background:#25D366}
+.shareBtn.cp .ic{background:#2A5A66}
+.shareClose{
+  position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:50%;
+  border:1px solid rgba(243,238,226,.2);color:#F3EEE2;
+}
+
+.fs-hint{position:absolute;top:18px;left:50%;transform:translateX(-50%);font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(247,241,230,.35);pointer-events:none}
+</style>
+</head>
+<body>
+
+<div id="intro">
+  <h1>Миглена Иванова</h1>
+  <p>Луксозно кинематографично портфолио — стил, море и светлина. Пускане с музика и споделяне.</p>
+  <button id="startBtn" type="button">▶ Пусни</button>
+  <p class="hint">Препоръчително на цял екран · song.mp3 в същата папка</p>
+</div>
+
+<div id="stage"><canvas id="c"></canvas></div>
+
+<div id="ui">
+  <div class="topbar">
+    <div class="brand">Mi</div>
+    <div class="ctrls">
+      <button class="ctrl play" id="musicBtn" type="button" title="Музика" aria-label="Музика">♪</button>
+      <button class="ctrl" id="shareBtn" type="button" title="Сподели" aria-label="Сподели"><span class="lbl">Share</span></button>
+      <button class="ctrl" id="fsBtn" type="button" title="Цял екран">⛶</button>
+    </div>
+  </div>
+  <div class="clock" id="clock">00:00 / 01:20</div>
+  <div class="progress"><i id="bar"></i></div>
+</div>
+
+<div class="shareSheet" id="shareSheet" aria-hidden="true">
+  <div class="shareCard">
+    <button class="shareClose" id="shareClose" type="button" aria-label="Затвори">×</button>
+    <img src="miglena-01.jpg" alt="Миглена Иванова" id="shareImg">
+    <h3>Миглена Иванова</h3>
+    <p>Живея, мечтая, обичам — стил и море.</p>
+    <div class="shareRow">
+      <button class="shareBtn fb" type="button" data-net="facebook"><span class="ic">f</span>Facebook</button>
+      <button class="shareBtn vb" type="button" data-net="viber"><span class="ic">V</span>Viber</button>
+      <button class="shareBtn wa" type="button" data-net="whatsapp"><span class="ic">W</span>WhatsApp</button>
+      <button class="shareBtn cp" type="button" id="copyBtn"><span class="ic">↗</span>Копирай</button>
+    </div>
+  </div>
+</div>
+
+<audio id="bgm" loop preload="auto" src="song.mp3"></audio>
+
+<script>
+(function(){
+"use strict";
+const VW=1920, VH=1080, CX=VW/2, CY=VH/2;
+const DURATION=80; // ~1:20 cinematic reel
+
+const PHOTOS=[
+  {src:'miglena-01.jpg', title:'Миглена Иванова', sub:'Живея, мечтая, обичам'},
+  {src:'miglena-03.jpg', title:'Червено', sub:'Сила и елегантност'},
+  {src:'miglena-04.jpg', title:'Поглед', sub:'Светлина върху кожата'},
+  {src:'miglena-05.jpg', title:'Жест', sub:'Ръцете говорят'},
+  {src:'miglena-06.jpg', title:'Костюм', sub:'Архитектура на стила'},
+  {src:'miglena-07.jpg', title:'Вечер', sub:'Сатен и сенки'},
+  {src:'miglena-08.jpg', title:'Кипър', sub:'Слънце и движение'},
+  {src:'miglena-09.jpg', title:'Палми', sub:'Островен ритъм'},
+  {src:'miglena-10.jpg', title:'Strong', sub:'Тяло и дисциплина'},
+  {src:'miglena-11.jpg', title:'Лекота', sub:'Синьо и злато'},
+  {src:'miglena-02.jpg', title:'Огледало', sub:'Момент за себе си'}
+];
+
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d',{alpha:false});
+const images=[];
+let loaded=0;
+
+function fit(){
+  const s=Math.min(innerWidth/VW, innerHeight/VH);
+  canvas.width=VW; canvas.height=VH;
+  canvas.style.width=(VW*s)+'px';
+  canvas.style.height=(VH*s)+'px';
+}
+addEventListener('resize',fit);
+addEventListener('orientationchange',()=>setTimeout(fit,120));
+fit();
+
+/* preload */
+PHOTOS.forEach((p,i)=>{
+  const img=new Image();
+  img.onload=()=>{loaded++; if(loaded===PHOTOS.length) onReady();};
+  img.onerror=()=>{loaded++; if(loaded===PHOTOS.length) onReady();};
+  img.src=p.src;
+  images[i]=img;
+});
+
+function onReady(){ /* wait for user start */ }
+
+/* easing */
+const clamp=x=>Math.max(0,Math.min(1,x));
+const lerp=(a,b,k)=>a+(b-a)*k;
+const easeInOut=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+
+/* scene timing: each photo gets a window */
+const SLOT=DURATION/PHOTOS.length;
+
+function drawCover(img, t, local, ken){
+  if(!img || !img.complete || !img.naturalWidth) return;
+  const iw=img.naturalWidth, ih=img.naturalHeight;
+  const scale0=Math.max(VW/iw, VH/ih);
+  // Ken Burns: slow zoom + pan
+  const zoom=1 + ken.z * easeInOut(local);
+  const scale=scale0*zoom;
+  const dw=iw*scale, dh=ih*scale;
+  const ox=ken.x * (dw-VW) * local;
+  const oy=ken.y * (dh-VH) * local;
+  const dx=(VW-dw)/2 + ox;
+  const dy=(VH-dh)/2 + oy;
+  ctx.drawImage(img, dx, dy, dw, dh);
+}
+
+function drawVignette(strength){
+  const g=ctx.createRadialGradient(CX,CY,VH*0.15, CX,CY, VH*0.85);
+  g.addColorStop(0,'rgba(0,0,0,0)');
+  g.addColorStop(1,`rgba(5,12,16,${0.55*strength})`);
+  ctx.fillStyle=g; ctx.fillRect(0,0,VW,VH);
+}
+
+function drawFilmGrain(t){
+  ctx.save(); ctx.globalAlpha=0.04;
+  for(let i=0;i<120;i++){
+    const x=(Math.sin(t*12+i*7.1)*0.5+0.5)*VW;
+    const y=(Math.cos(t*9+i*3.3)*0.5+0.5)*VH;
+    ctx.fillStyle=i%2?'#fff':'#000';
+    ctx.fillRect(x,y,1.5,1.5);
+  }
+  ctx.restore();
+}
+
+function drawCaption(title, sub, a){
+  if(a<=0.01) return;
+  ctx.save();
+  ctx.globalAlpha=a;
+  // soft plate
+  const pg=ctx.createLinearGradient(0,VH*0.55,0,VH);
+  pg.addColorStop(0,'rgba(5,12,16,0)');
+  pg.addColorStop(0.4,'rgba(5,12,16,0.45)');
+  pg.addColorStop(1,'rgba(5,12,16,0.82)');
+  ctx.fillStyle=pg; ctx.fillRect(0,0,VW,VH);
+
+  ctx.textAlign='left';
+  ctx.fillStyle='#D4B36A';
+  ctx.font='500 15px Outfit, system-ui, sans-serif';
+  ctx.letterSpacing='0.28em';
+  ctx.fillText('МИГЛЕНА ИВАНОВА', 80, VH-160);
+
+  ctx.fillStyle='#F7F1E6';
+  ctx.font='italic 400 52px Cormorant Garamond, Georgia, serif';
+  ctx.fillText(title, 80, VH-100);
+
+  ctx.fillStyle='rgba(247,241,230,0.65)';
+  ctx.font='300 20px Outfit, system-ui, sans-serif';
+  ctx.fillText(sub, 80, VH-62);
+  ctx.restore();
+}
+
+function drawTitleCard(t){
+  // opening 0-4s
+  if(t>5) return;
+  const a=t<1?clamp(t/1):(t>3.5?clamp(1-(t-3.5)/1.5):1);
+  ctx.save();
+  ctx.fillStyle=`rgba(5,12,16,${0.35*a})`;
+  ctx.fillRect(0,0,VW,VH);
+  ctx.globalAlpha=a;
+  ctx.textAlign='center';
+  ctx.fillStyle='#D4B36A';
+  ctx.font='500 14px Outfit,sans-serif';
+  ctx.fillText('КИПЪР  ·  СТИЛ  ·  МОРЕ', CX, CY-50);
+  ctx.fillStyle='#F7F1E6';
+  ctx.font='italic 400 64px Cormorant Garamond, Georgia, serif';
+  ctx.fillText('Миглена Иванова', CX, CY+20);
+  ctx.fillStyle='rgba(247,241,230,0.55)';
+  ctx.font='italic 400 24px Cormorant Garamond, Georgia, serif';
+  ctx.fillText('„Живея, мечтая, обичам.“', CX, CY+70);
+  ctx.restore();
+}
+
+function drawEndCard(t){
+  if(t<DURATION-6) return;
+  const local=t-(DURATION-6);
+  const a=clamp(local/1.5);
+  ctx.save();
+  ctx.fillStyle=`rgba(5,12,16,${0.5+0.4*a})`;
+  ctx.fillRect(0,0,VW,VH);
+  ctx.globalAlpha=a;
+  ctx.textAlign='center';
+  ctx.fillStyle='#D4B36A';
+  ctx.font='italic 400 48px Cormorant Garamond, Georgia, serif';
+  ctx.fillText('Виж. Мечтай. Обичай.', CX, CY-10);
+  ctx.fillStyle='rgba(247,241,230,0.5)';
+  ctx.font='300 16px Outfit,sans-serif';
+  ctx.fillText('Миглена Иванова', CX, CY+40);
+  ctx.restore();
+}
+
+/* Ken Burns presets per slide */
+const KEN=[
+  {z:0.12,x:0.3,y:-0.2},{z:0.15,x:-0.25,y:0.15},{z:0.1,x:0.2,y:0.25},
+  {z:0.14,x:-0.15,y:-0.2},{z:0.11,x:0.35,y:0.1},{z:0.13,x:-0.3,y:0.2},
+  {z:0.12,x:0.1,y:-0.25},{z:0.15,x:-0.2,y:0.15},{z:0.1,x:0.25,y:-0.1},
+  {z:0.14,x:-0.1,y:0.3},{z:0.12,x:0.2,y:-0.15}
+];
+
+let startTime=null, lastT=0, playing=false;
+
+function frame(now){
+  if(!playing){ requestAnimationFrame(frame); return; }
+  if(startTime===null) startTime=now;
+  const t=(now-startTime)/1000;
+  lastT=t;
+
+  if(t>=DURATION){
+    // hold last frame dimmed
+    ctx.fillStyle='#050c10'; ctx.fillRect(0,0,VW,VH);
+    drawEndCard(DURATION-0.1);
+    document.getElementById('bar').style.width='100%';
+    document.getElementById('clock').textContent='01:20 / 01:20';
+    requestAnimationFrame(frame);
+    return;
+  }
+
+  // crossfade between slides
+  const idx=Math.min(PHOTOS.length-1, Math.floor(t/SLOT));
+  const local=(t - idx*SLOT)/SLOT; // 0..1 within slide
+  const nextIdx=Math.min(PHOTOS.length-1, idx+1);
+  const fade=local>0.85? (local-0.85)/0.15 : 0;
+
+  ctx.fillStyle='#050c10'; ctx.fillRect(0,0,VW,VH);
+
+  // current
+  ctx.save();
+  ctx.globalAlpha=1-fade*0.85;
+  drawCover(images[idx], t, local, KEN[idx%KEN.length]);
+  ctx.restore();
+
+  // next peek
+  if(fade>0 && nextIdx!==idx){
+    ctx.save();
+    ctx.globalAlpha=fade*0.9;
+    drawCover(images[nextIdx], t, 0, KEN[nextIdx%KEN.length]);
+    ctx.restore();
+  }
+
+  drawVignette(0.9);
+  drawFilmGrain(t);
+
+  // captions
+  const capIn=clamp(local/0.15);
+  const capOut=local>0.75?clamp(1-(local-0.75)/0.2):1;
+  drawCaption(PHOTOS[idx].title, PHOTOS[idx].sub, capIn*capOut*(1-fade));
+
+  drawTitleCard(t);
+  drawEndCard(t);
+
+  // UI
+  const m=Math.floor(t/60), s=Math.floor(t%60);
+  document.getElementById('clock').textContent=
+    String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+' / 01:20';
+  document.getElementById('bar').style.width=(clamp(t/DURATION)*100)+'%';
+
+  requestAnimationFrame(frame);
+}
+
+/* music */
+const bgm=document.getElementById('bgm');
+const musicBtn=document.getElementById('musicBtn');
+let musicOn=false;
+function toggleMusic(){
+  if(!musicOn){
+    bgm.volume=0.55;
+    bgm.play().then(()=>{ musicOn=true; musicBtn.classList.add('on'); musicBtn.textContent='♫'; }).catch(()=>{});
+  } else {
+    bgm.pause(); musicOn=false; musicBtn.classList.remove('on'); musicBtn.textContent='♪';
+  }
+}
+musicBtn.onclick=toggleMusic;
+
+/* share */
+const sheet=document.getElementById('shareSheet');
+document.getElementById('shareBtn').onclick=()=>sheet.classList.add('on');
+document.getElementById('shareClose').onclick=()=>sheet.classList.remove('on');
+sheet.onclick=e=>{ if(e.target===sheet) sheet.classList.remove('on'); };
+
+function shareUrl(net){
+  const url=encodeURIComponent(location.href.split('#')[0]);
+  const text=encodeURIComponent('Миглена Иванова — Живея, мечтая, обичам');
+  if(net==='facebook') return `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+  if(net==='viber') return `viber://forward?text=${text}%20${url}`;
+  if(net==='whatsapp') return `https://wa.me/?text=${text}%20${url}`;
+}
+document.querySelectorAll('.shareBtn[data-net]').forEach(b=>{
+  b.onclick=()=>window.open(shareUrl(b.dataset.net),'_blank','noopener,noreferrer');
+});
+document.getElementById('copyBtn').onclick=async()=>{
+  try{
+    await navigator.clipboard.writeText(location.href.split('#')[0]);
+    const lab=document.querySelector('#copyBtn span:last-child')||document.getElementById('copyBtn');
+    // flash feedback via button text
+    const prev=document.getElementById('copyBtn').childNodes[1]?.textContent;
+    document.getElementById('copyBtn').innerHTML='<span class="ic">✓</span>OK';
+    setTimeout(()=>{ document.getElementById('copyBtn').innerHTML='<span class="ic">↗</span>Копирай'; },1600);
+  }catch(e){}
+};
+
+/* fullscreen */
+document.getElementById('fsBtn').onclick=()=>{
+  if(!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+  else document.exitFullscreen?.();
+};
+
+/* start */
+document.getElementById('startBtn').onclick=()=>{
+  document.getElementById('intro').classList.add('hide');
+  playing=true; startTime=null;
+  // try auto music (may require gesture — we have gesture)
+  toggleMusic();
+  requestAnimationFrame(frame);
+};
+
+// static preview
+ctx.fillStyle='#050c10'; ctx.fillRect(0,0,VW,VH);
+ctx.fillStyle='#D4B36A'; ctx.font='italic 40px Georgia'; ctx.textAlign='center';
+ctx.fillText('Миглена Иванова', CX, CY);
+})();
+</script>
+</body>
+</html>
